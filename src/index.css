@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans Arabic", "Noto Kufi Arabic", sans-serif;
+}
+
+@layer base {
+  :root {
+    /* === FULLY CUSTOMIZABLE THEME TOKENS === */
+    --primary: #2563eb;
+    --secondary: #1e40af;
+    --accent: #f59e0b;
+    --danger: #ef4444;
+    --success: #10b981;
+
+    --bg-main: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-sidebar: #0f172a;
+    --bg-input: #f8fafc;
+
+    --text-main: #0f172a;
+    --text-heading: #020617;
+    --text-muted: #64748b;
+    --text-on-primary: #ffffff;
+    --text-on-sidebar: #cbd5e1;
+
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-xs: 6px;
+
+    /* Shadows */
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-card-hover: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04);
+    --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.15);
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--text-on-primary);
+  }
+
+  body {
+    margin: 0;
+    font-family: "IBM Plex Sans Arabic", "Noto Kufi Arabic", sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    direction: rtl;
+  }
+
+  /* Ensure all fixed overlays/modals center properly regardless of RTL */
+  [style*="inset: 0"] {
+    direction: rtl;
+  }
+
+  /* Focus ring */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  /* Smooth theme transitions on all themed elements */
+  .theme-transition,
+  .theme-transition * {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+}
+
+/* === POS-specific utilities === */
+@layer utilities {
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .pos-grid-item {
+    min-height: 88px;
+    touch-action: manipulation;
+  }
+
+  .barcode-flash {
+    animation: barcodeFlash 0.4s ease-out;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.25s ease-out both;
+  }
+
+  .slide-up {
+    animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .pulse-success {
+    animation: pulseSuccess 0.5s ease-out;
+  }
+
+  .receipt-line {
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .glass {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  .noise {
+    position: relative;
+  }
+  .noise::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* Card base styles */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  }
+  .card-hover:hover {
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--border);
+    transform: translateY(-1px);
+  }
+
+  /* Staggered animation helper */
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
+  .stagger-5 { animation-delay: 0.25s; }
+}
+
+@keyframes barcodeFlash {
+  0% { box-shadow: inset 0 0 0 3px var(--success); transform: scale(1.02); }
+  100% { box-shadow: inset 0 0 0 0 transparent; transform: scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseSuccess {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* === Global Modal Positioning Fix === */
+.fixed.inset-0.z-50 {
+  padding: 1rem;
+}
+.fixed.inset-0.z-50 > div {
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* === Mobile Responsive === */
+@media (max-width: 768px) {
+  /* Tables become scrollable with touch */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Bigger touch targets on mobile */
+  button, a, select {
+    min-height: 40px;
+  }
+
+  /* Stack form grids vertically */
+  .grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Make modals full-width on mobile */
+  .fixed.inset-0.z-50 > div {
+    max-width: calc(100vw - 1rem) !important;
+    margin: 0.5rem;
+  }
+}
+
+/* === POS Mobile — Bottom sheet cart pattern === */
+@media (max-width: 1024px) {
+  /* POS main flex: stack vertically */
+  .pos-mobile-stack {
+    flex-direction: column !important;
+  }
+  .pos-mobile-stack > .pos-cart-sidebar {
+    width: 100% !important;
+    max-height: 45vh;
+    order: 2;
+    border-left: none !important;
+    border-top: 2px solid var(--border);
+  }
+  .pos-mobile-stack > .pos-products-area {
+    order: 1;
+    min-height: 50vh;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Smaller text and padding */
+  .p-5, .p-6 { padding: 0.75rem; }
+  .px-5, .px-6 { padding-left: 0.75rem; padding-right: 0.75rem; }
+
+  .text-2xl { font-size: 1.25rem; }
+  .text-xl { font-size: 1.1rem; }
+}

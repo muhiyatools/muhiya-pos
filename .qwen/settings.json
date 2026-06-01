@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(move *)",
+      "Bash(del *)",
+      "Bash(findstr *)",
+      "Bash(npx *)",
+      "Bash(dir *)",
+      "Bash(copy *)"
+    ]
+  },
+  "$version": 3
+}

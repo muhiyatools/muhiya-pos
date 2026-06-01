@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "516bd2154eb843a8240e43d5b285229129853114ad7075a5e141e1c08e408c84"
+    },
+    "stitch-loop": {
+      "source": "google-labs-code/stitch-skills",
+      "sourceType": "github",
+      "computedHash": "cf47da05045ce0c11f1a8b21dc4ef9bbfed0122d68548a48786cb1608257d574"
+    },
+    "supabase": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "computedHash": "3bc4f56943a13f4fe355742a4b3b30c56008e6d265ae71f19c592410b5f5a01f"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "computedHash": "abf015aafed757edaf2a329299fc106abebdc53bc7f089e92e1f762ed3d8f117"
+    }
+  }
+}
