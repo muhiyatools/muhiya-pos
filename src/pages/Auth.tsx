@@ -83,7 +83,7 @@ export default function Auth() {
                   className="w-full pr-12 pl-4 py-3.5 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 disabled:opacity-50"
                   dir="ltr"
                   placeholder="admin@example.com"
-                  style={{ background: 'var(--bg-input)', borderColor: error ? '#ef4444' : 'var(--border)', color: 'var(--text-main)' } as any}
+                  style={{ background: 'var(--bg-input)', borderColor: error ? '#ef4444' : 'var(--border)', color: 'var(--text-main)' }}
                 />
               </div>
             </div>
@@ -101,7 +101,7 @@ export default function Auth() {
                   className="w-full pr-12 pl-12 py-3.5 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 disabled:opacity-50"
                   dir="ltr"
                   placeholder="••••••••"
-                  style={{ background: 'var(--bg-input)', borderColor: error ? '#ef4444' : 'var(--border)', color: 'var(--text-main)' } as any}
+                  style={{ background: 'var(--bg-input)', borderColor: error ? '#ef4444' : 'var(--border)', color: 'var(--text-main)' }}
                 />
                 <button
                   type="button"

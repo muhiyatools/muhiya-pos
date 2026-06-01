@@ -70,12 +70,12 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           setTenant(firstTenant as Tenant)
           await supabase.from('users').update({ tenant_id: firstTenant.id } as any).eq('email', user.email || '')
         } else {
-          // Auto-create a default tenant for the first user
+          const emailName = (user?.email || '').split('@')[0] || 'مستخدم'
           const { data: newTenant } = await supabase
             .from('tenants')
             .insert({
-              name: 'مؤسسة جديدة',
-              slug: 'tenant-' + Date.now(),
+              name: `مؤسسة ${emailName}`,
+              slug: emailName.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Date.now().toString(36),
               plan: 'free',
               owner_email: user.email || '',
             })
@@ -87,7 +87,6 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
             setTenant(newTenant as Tenant)
             await supabase.from('users').update({ tenant_id: newTenant.id } as any).eq('email', user.email || '')
 
-            // Create default main branch
             const { data: insertedBranch } = await supabase.from('branches').insert({
               tenant_id: newTenant.id,
               name: 'الفرع الرئيسي',

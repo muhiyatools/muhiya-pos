@@ -77,7 +77,7 @@ const presets: Record<Exclude<ThemePreset, 'custom'>, ThemeColors> = { dark: dar
 
 const defaultConfig: ThemeConfig = {
   ...darkTheme,
-  companyName: 'المؤسسة', logoUrl: '', taxRate: 14, currencySymbol: 'ج.م',
+  companyName: 'منشأتي', logoUrl: '', taxRate: 14, currencySymbol: 'ج.م',
 }
 
 function dbToTheme(row: any): ThemeColors {
@@ -165,7 +165,7 @@ export function initThemeStore() {
         corner_radius: s.cornerRadius, is_dark: s.isDark, is_default: false, is_active: true,
       }
       localStorage.setItem('app_theme', JSON.stringify(payload))
-    } catch (e) { console.warn('save theme:', e) }
+    } catch { /* localStorage might be full or unavailable */ }
   }
 
   store = {
@@ -193,10 +193,10 @@ export function initThemeStore() {
             if (orgData.logo_url) s.logoUrl = orgData.logo_url
             if (orgData.tax_rate != null) s.taxRate = orgData.tax_rate
             if (orgData.currency_symbol) s.currencySymbol = orgData.currency_symbol
-          } catch {}
+          } catch { /* localStorage unavailable */ }
         }
         setDOM()
-      } catch (e) { setDOM() }
+      } catch { setDOM() }
       s.isLoading = false; notify()
     },
   }

@@ -38,7 +38,7 @@ export function playBeep(frequency = 800, duration = 150, volume = 0.3) {
     oscillator.start()
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000)
     oscillator.stop(ctx.currentTime + duration / 1000)
-  } catch {}
+  } catch { /* audio context may not be available */ }
 }
 
 /** Error beep — lower pitch, longer duration */

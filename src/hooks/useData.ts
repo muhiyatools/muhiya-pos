@@ -174,7 +174,7 @@ export function useOrganization() {
             name: data.name, logo_url: data.logo_url, phone: data.phone, address: data.address,
             tax_rate: orgAny?.tax_rate ?? 14, currency_symbol: orgAny?.currency_symbol || 'ج.م',
           }))
-        } catch {}
+        } catch { /* localStorage unavailable */ }
       }
       setLoading(false)
     }

@@ -12,7 +12,7 @@ const DEFAULT_INVOICE: Record<string, any> = {
   show_logo: true, logo_bw: true, show_address: true, show_phone: true,
   show_tax_number: true, show_tax_id: false, show_branch: true, show_cashier: true, show_subtotal: true,
   show_discount: true, show_tax: true, show_payment_method: true, show_qr_code: false,
-  footer_text: 'شكراً لزيارتكم ❤', footer_text2: '',
+  footer_text: 'شكراً لزيارتكم', footer_text2: '',
 }
 
 const DEFAULT_EPAYMENT: Record<string, any> = {
