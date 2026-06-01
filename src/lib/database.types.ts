@@ -721,6 +721,72 @@ export type Database = {
           },
         ]
       }
+      paymob_transactions: {
+        Row: {
+          amount_cents: number
+          created_at: string | null
+          currency: string
+          customer_phone: string | null
+          id: string
+          offline_order_id: string | null
+          paid_at: string | null
+          payload: Json | null
+          payment_link: string | null
+          paymob_order_id: string | null
+          paymob_transaction_id: string | null
+          refund_amount_cents: number | null
+          refund_reference: string | null
+          refunded_at: string | null
+          sending_method: string | null
+          shorten_url: string | null
+          status: string
+          tenant_id: string | null
+          webhook_payload: Json | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string | null
+          currency: string
+          customer_phone?: string | null
+          id?: string
+          offline_order_id?: string | null
+          paid_at?: string | null
+          payload?: Json | null
+          payment_link?: string | null
+          paymob_order_id?: string | null
+          paymob_transaction_id?: string | null
+          refund_amount_cents?: number | null
+          refund_reference?: string | null
+          refunded_at?: string | null
+          sending_method?: string | null
+          shorten_url?: string | null
+          status?: string
+          tenant_id?: string | null
+          webhook_payload?: Json | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string | null
+          currency?: string
+          customer_phone?: string | null
+          id?: string
+          offline_order_id?: string | null
+          paid_at?: string | null
+          payload?: Json | null
+          payment_link?: string | null
+          paymob_order_id?: string | null
+          paymob_transaction_id?: string | null
+          refund_amount_cents?: number | null
+          refund_reference?: string | null
+          refunded_at?: string | null
+          sending_method?: string | null
+          shorten_url?: string | null
+          status?: string
+          tenant_id?: string | null
+          webhook_payload?: Json | null
+        }
+        Relationships: []
+      }
       product_addons: {
         Row: {
           created_at: string | null

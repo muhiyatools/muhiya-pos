@@ -3,7 +3,7 @@ import { useToast } from '../context/ToastContext'
 import { useThemeStore, type ThemePreset } from '../store/useThemeStore'
 import { useOrganization } from '../hooks/useData'
 import { testETAConnection } from '../lib/einvoice'
-import { Palette, Building2, Sun, Star, Save, Loader2, Check, Upload, FileText, Shield, Eye, EyeOff, Wifi, Printer, Clock, Percent, CreditCard, Receipt, MessageSquare, Phone, ChevronDown, ChevronUp, BookOpen, Smartphone } from 'lucide-react'
+import { Palette, Building2, Sun, Star, Save, Loader2, Check, Upload, FileText, Shield, Eye, EyeOff, Wifi, Printer, Clock, Percent, CreditCard, Receipt, MessageSquare, Phone, ChevronDown, ChevronUp, BookOpen } from 'lucide-react'
 import { uploadImage } from '../lib/storage'
 
 type TabId = 'theme' | 'org' | 'einvoice' | 'security' | 'operations' | 'invoice' | 'payments'

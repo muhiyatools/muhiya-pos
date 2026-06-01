@@ -53,7 +53,7 @@ export interface OfflineOrder {
   tenant_id: string | null
   notes: string | null
   created_at: string
-  synced: 0 | 1 // 0 = pending sync, 1 = synced
+  synced: 0 | 1 | 2 // 0 = pending, 1 = synced, 2 = directly inserted
 }
 
 export interface OfflineOrderItem {
@@ -65,7 +65,7 @@ export interface OfflineOrderItem {
   unit_price: number
   line_total: number
   notes: string | null
-  synced: 0 | 1
+  synced: 0 | 1 | 2
 }
 
 export interface OfflineHeldCart {

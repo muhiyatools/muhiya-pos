@@ -8,7 +8,7 @@ interface TooltipProps {
 
 export default function Tooltip({ text, children, position = 'top' }: TooltipProps) {
   const [show, setShow] = useState(false)
-  const timeout = useRef<ReturnType<typeof setTimeout>>()
+  const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const posStyles: Record<string, React.CSSProperties> = {
     top: { bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 6 },
