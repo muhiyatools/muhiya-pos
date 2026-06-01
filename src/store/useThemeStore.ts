@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 
 export type ThemePreset = 'dark' | 'light' | 'custom'
 
@@ -38,11 +39,11 @@ export interface ThemeStore extends ThemeConfig {
   setTheme: (s: Partial<ThemeConfig>) => void
   switchPreset: (p: ThemePreset) => void
   applyToDOM: () => void
-  saveToDB: () => Promise<void>
-  loadFromDB: () => Promise<void>
+  saveToDB: (tenantId?: string) => Promise<void>
+  loadFromDB: (tenantId?: string) => Promise<void>
+  setTenantId: (tenantId: string) => void
 }
 
-// السمة الافتراضية — داكن مثل الصورة المرجعية
 const darkTheme: ThemeColors = {
   primaryColor: '#10b981',
   secondaryColor: '#059669',
@@ -103,6 +104,31 @@ function dbToTheme(row: any): ThemeColors {
   }
 }
 
+function themeToDb(s: ThemeStore) {
+  return {
+    name: 'مخصص',
+    primary_color: s.primaryColor,
+    secondary_color: s.secondaryColor,
+    accent_color: s.accentColor,
+    danger_color: s.dangerColor,
+    success_color: s.successColor,
+    background: s.bgMain,
+    surface: s.bgCard,
+    sidebar_bg: s.bgSidebar,
+    text_color: s.textMain,
+    corner_radius: s.cornerRadius,
+    is_dark: s.isDark,
+    is_default: false,
+    is_active: true,
+  }
+}
+
+function cacheToLocal(s: ThemeStore) {
+  try {
+    localStorage.setItem('app_theme', JSON.stringify(themeToDb(s)))
+  } catch { /* localStorage unavailable */ }
+}
+
 const listeners = new Set<(s: ThemeStore) => void>()
 let store: ThemeStore
 
@@ -114,7 +140,7 @@ function createDefault(): ThemeStore {
     activePreset: 'dark',
     isLoading: false, isDbLoaded: false, dbThemeId: null,
     setTheme: () => {}, switchPreset: () => {}, applyToDOM: () => {},
-    saveToDB: async () => {}, loadFromDB: async () => {},
+    saveToDB: async () => {}, loadFromDB: async () => {}, setTenantId: () => {},
   }
 }
 
@@ -131,7 +157,7 @@ export function useThemeStore(): ThemeStore {
 }
 
 export function initThemeStore() {
-  const s = { ...defaultConfig, activePreset: 'dark' as ThemePreset, isLoading: false, isDbLoaded: false, dbThemeId: null as string | null }
+  const s = { ...defaultConfig, activePreset: 'dark' as ThemePreset, isLoading: false, isDbLoaded: false, dbThemeId: null as string | null, _tenantId: null as string | null }
 
   const setDOM = () => {
     const r = document.documentElement
@@ -156,48 +182,124 @@ export function initThemeStore() {
     r.style.setProperty('--radius-xs', `${Math.max(2, s.cornerRadius - 8)}px`)
   }
 
-  const saveDB = async () => {
-    try {
-      const payload = {
-        name: 'مخصص', primary_color: s.primaryColor, secondary_color: s.secondaryColor,
-        accent_color: s.accentColor, danger_color: s.dangerColor, success_color: s.successColor,
-        background: s.bgMain, surface: s.bgCard, sidebar_bg: s.bgSidebar, text_color: s.textMain,
-        corner_radius: s.cornerRadius, is_dark: s.isDark, is_default: false, is_active: true,
+  const saveDB = async (tenantId?: string) => {
+    // Always cache to localStorage as a fast fallback
+    cacheToLocal(s)
+
+    // Persist to Supabase if tenant is known (use stored tenantId as fallback)
+    const effectiveTenantId = tenantId || s._tenantId
+    if (effectiveTenantId) {
+      try {
+        const payload = { ...themeToDb(s), tenant_id: effectiveTenantId }
+        // Try to find existing theme for this tenant
+        const { data: existing } = await supabase
+          .from('themes')
+          .select('id')
+          .eq('tenant_id', effectiveTenantId)
+          .eq('is_active', true)
+          .maybeSingle()
+
+        if (existing?.id) {
+          await supabase.from('themes').update(payload).eq('id', existing.id)
+          s.dbThemeId = existing.id
+        } else {
+          const { data: inserted } = await supabase
+            .from('themes')
+            .insert(payload)
+            .select('id')
+            .single()
+          if (inserted?.id) s.dbThemeId = inserted.id
+        }
+      } catch (err) {
+        console.warn('[theme] save to Supabase failed, using localStorage:', err)
       }
-      localStorage.setItem('app_theme', JSON.stringify(payload))
-    } catch { /* localStorage might be full or unavailable */ }
+    }
   }
 
   store = {
     ...s,
-    setTheme: (u) => { Object.assign(s, u); s.activePreset = 'custom'; setDOM(); notify(); clearTimeout((s as any)._t); (s as any)._t = setTimeout(saveDB, 500) },
+    setTheme: (u) => {
+      Object.assign(s, u)
+      s.activePreset = 'custom'
+      setDOM()
+      notify()
+      clearTimeout((s as any)._t)
+      ;(s as any)._t = setTimeout(() => saveDB(), 500)
+    },
     switchPreset: (p) => {
       if (p !== 'custom') { Object.assign(s, presets[p]); s.activePreset = p }
       else s.activePreset = 'custom'
-      setDOM(); notify(); clearTimeout((s as any)._t); (s as any)._t = setTimeout(saveDB, 500)
+      setDOM()
+      notify()
+      clearTimeout((s as any)._t)
+      ;(s as any)._t = setTimeout(() => saveDB(), 500)
     },
     applyToDOM: setDOM,
     saveToDB: saveDB,
-    loadFromDB: async () => {
-      s.isLoading = true; notify()
+    setTenantId: (tenantId: string) => {
+      s._tenantId = tenantId
+      // Re-load theme from Supabase with the new tenant
+      saveDB()
+    },
+    loadFromDB: async (tenantId?: string) => {
+      s.isLoading = true
+      if (tenantId) s._tenantId = tenantId
+      notify()
+
+      let loaded = false
+
+      // 1. Try Supabase first if tenant is known
+      if (tenantId) {
+        try {
+          const { data: themeRow } = await supabase
+            .from('themes')
+            .select('*')
+            .eq('tenant_id', tenantId)
+            .eq('is_active', true)
+            .order('updated_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+          if (themeRow) {
+            Object.assign(s, dbToTheme(themeRow))
+            s.dbThemeId = themeRow.id
+            s.isDbLoaded = true
+            loaded = true
+            // Sync to localStorage cache
+            cacheToLocal(s)
+          }
+        } catch {
+          // Fall through to localStorage
+        }
+      }
+
+      // 2. Fall back to localStorage
+      if (!loaded) {
+        try {
+          const raw = localStorage.getItem('app_theme')
+          const data = raw ? JSON.parse(raw) : null
+          if (data) {
+            Object.assign(s, dbToTheme(data))
+            s.isDbLoaded = true
+          }
+        } catch { /* localStorage unavailable */ }
+      }
+
+      // 3. Load company info from localStorage cache
       try {
-        const raw = localStorage.getItem('app_theme')
-        const data = raw ? JSON.parse(raw) : null
-        if (data) { Object.assign(s, dbToTheme(data)); s.isDbLoaded = true }
-        // Load company info from localStorage cache
         const orgRaw = localStorage.getItem('app_org_cache')
         if (orgRaw) {
-          try {
-            const orgData = JSON.parse(orgRaw)
-            if (orgData.name) s.companyName = orgData.name
-            if (orgData.logo_url) s.logoUrl = orgData.logo_url
-            if (orgData.tax_rate != null) s.taxRate = orgData.tax_rate
-            if (orgData.currency_symbol) s.currencySymbol = orgData.currency_symbol
-          } catch { /* localStorage unavailable */ }
+          const orgData = JSON.parse(orgRaw)
+          if (orgData.name) s.companyName = orgData.name
+          if (orgData.logo_url) s.logoUrl = orgData.logo_url
+          if (orgData.tax_rate != null) s.taxRate = orgData.tax_rate
+          if (orgData.currency_symbol) s.currencySymbol = orgData.currency_symbol
         }
-        setDOM()
-      } catch { setDOM() }
-      s.isLoading = false; notify()
+      } catch { /* localStorage unavailable */ }
+
+      setDOM()
+      s.isLoading = false
+      notify()
     },
   }
 

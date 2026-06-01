@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { supabase as typedSupabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
 import { useAuth } from './AuthContext'
-
-const supabase = typedSupabase as any
+import { initThemeStore } from '../store/useThemeStore'
 
 export interface Tenant {
   id: string
@@ -68,7 +67,8 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         if (firstTenant) {
           tenantId = firstTenant.id
           setTenant(firstTenant as Tenant)
-          await supabase.from('users').update({ tenant_id: firstTenant.id } as any).eq('email', user.email || '')
+          initThemeStore().setTenantId(firstTenant.id)
+          await supabase.from('users').update({ tenant_id: firstTenant.id }).eq('email', user.email || '')
         } else {
           const emailName = (user?.email || '').split('@')[0] || 'مستخدم'
           const { data: newTenant } = await supabase
@@ -85,7 +85,8 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           if (newTenant) {
             tenantId = newTenant.id
             setTenant(newTenant as Tenant)
-            await supabase.from('users').update({ tenant_id: newTenant.id } as any).eq('email', user.email || '')
+            initThemeStore().setTenantId(newTenant.id)
+            await supabase.from('users').update({ tenant_id: newTenant.id }).eq('email', user.email || '')
 
             const { data: insertedBranch } = await supabase.from('branches').insert({
               tenant_id: newTenant.id,
@@ -108,7 +109,10 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           .select('*')
           .eq('id', tenantId)
           .single()
-        if (t) setTenant(t as Tenant)
+        if (t) {
+          setTenant(t as Tenant)
+          initThemeStore().setTenantId(t.id)
+        }
       }
 
       // Fetch branches

@@ -55,7 +55,7 @@ export default function SuppliersPage() {
       if (error) { toast.error('فشل تحديث بيانات المورد: ' + (error.message || 'خطأ')); setProcessing(false); return }
       toast.success('تم تحديث بيانات المورد')
     } else {
-      const { error } = await create(payload as any)
+      const { error } = await create(payload)
       if (error) { toast.error('فشل حفظ المورد: ' + (error.message || 'خطأ')); setProcessing(false); return }
       toast.success('تمت إضافة المورد')
     }
@@ -99,7 +99,7 @@ export default function SuppliersPage() {
     const poItems = po.items || []
     for (const item of poItems) {
       if (!item.product_id) continue
-      const { data: existing } = await (supabase as any)
+      const { data: existing } = await supabase
         .from('stock_locations')
         .select('id, quantity')
         .eq('product_id', item.product_id)
@@ -107,11 +107,11 @@ export default function SuppliersPage() {
         .maybeSingle()
 
       if (existing?.id) {
-        await (supabase as any).from('stock_locations').update({
+        await supabase.from('stock_locations').update({
           quantity: Number(existing.quantity || 0) + Number(item.quantity || 0),
         }).eq('id', existing.id)
       } else {
-        await (supabase as any).from('stock_locations').insert({
+        await supabase.from('stock_locations').insert({
           tenant_id: tenant?.id,
           product_id: item.product_id,
           warehouse_id: warehouseId,
@@ -394,7 +394,7 @@ function SupplierPayments({ supplierId, tenantId }: { supplierId: string; tenant
 
   const handlePay = async () => {
     if (!amount || !tenantId) return
-    await create({ tenant_id: tenantId, supplier_id: supplierId, amount: parseFloat(amount), method, notes: notes || null, paid_at: new Date().toISOString() } as any)
+    await create({ tenant_id: tenantId, supplier_id: supplierId, amount: parseFloat(amount), method, notes: notes || null, paid_at: new Date().toISOString() })
     setAmount('')
     setNotes('')
   }

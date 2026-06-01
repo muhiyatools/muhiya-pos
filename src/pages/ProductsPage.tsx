@@ -175,7 +175,7 @@ export default function ProductsPage() {
     setStockProcessing(true)
     const productId = showStockAdjust
     // Upsert stock location
-    const { data: existing } = await (supabase as any)
+    const { data: existing } = await supabase
       .from('stock_locations')
       .select('id, quantity')
       .eq('product_id', productId)
@@ -183,11 +183,11 @@ export default function ProductsPage() {
       .maybeSingle()
 
     if (existing?.id) {
-      await (supabase as any).from('stock_locations').update({
+      await supabase.from('stock_locations').update({
         quantity: Number(existing.quantity || 0) + stockAdjustForm.quantity,
       }).eq('id', existing.id)
     } else {
-      await (supabase as any).from('stock_locations').insert({
+      await supabase.from('stock_locations').insert({
         tenant_id: tenant?.id,
         product_id: productId,
         warehouse_id: stockAdjustForm.warehouse_id,
@@ -288,7 +288,7 @@ export default function ProductsPage() {
                   {badge && (badge.color === '#ef4444' || badge.color === '#f59e0b') && (
                     <div className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full" style={{ background: badge.color }} />
                   )}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 touch-visible">
                     <button onClick={() => startEdit(product)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'var(--bg-card)' }}><Edit2 className="w-3.5 h-3.5" style={{ color: 'var(--text-heading)' }} /></button>
                     <button onClick={() => { setShowStockAdjust(product.id); setStockAdjustForm({ branch_id: '', warehouse_id: '', quantity: 0 }) }} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'var(--bg-card)' }}><Warehouse className="w-3.5 h-3.5" style={{ color: '#3b82f6' }} /></button>
                     {product.barcode && <button onClick={() => printBarcode(product.barcode!, product.name)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'var(--bg-card)' }}><Printer className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} /></button>}

@@ -12,6 +12,8 @@ import { formatEGP, playBeep, playErrorBeep } from '../lib/utils'
 import { offlineDb } from '../lib/offlineDb'
 import { syncPendingOrders, startSyncLoop, stopSyncLoop, getOnlineStatus, getPendingSyncCount, fullSync } from '../lib/syncEngine'
 import { supabase } from '../lib/supabase'
+import { SkeletonGrid } from '../components/Skeleton'
+import { ProductCard } from '../components/pos/ProductCard'
 import { Link } from 'react-router-dom'
 import {
   Trash2, Plus, Minus, Search, LayoutDashboard, ShoppingCart,
@@ -357,26 +359,8 @@ export default function POS() {
       setLastOrder(order)
       setShowReceipt(true)
 
-      // Deduct sold quantity from this branch warehouse stock.
-      if (branchWarehouseId) {
-        for (const line of items) {
-          if (!line.product_id) continue
-          const productId = line.product_id
-
-          const { data: currentStock } = await supabase
-            .from('stock_locations')
-            .select('id, quantity')
-            .eq('warehouse_id', branchWarehouseId)
-            .eq('product_id', productId)
-            .maybeSingle()
-
-          if (!currentStock?.id) continue
-
-          const nextQty = Math.max(0, Number(currentStock.quantity || 0) - Number(line.quantity || 0))
-          await supabase.from('stock_locations').update({ quantity: nextQty }).eq('id', currentStock.id)
-          setBranchStock((prev) => ({ ...prev, [productId]: nextQty }))
-        }
-      }
+      // Stock deduction is handled exclusively by syncPendingOrders() when order syncs to Supabase.
+      // Do NOT deduct here — it causes double deduction when sync runs.
 
       // Auto-print if enabled in settings
       if ((org as any)?.print_invoices_enabled !== false) {
@@ -529,22 +513,7 @@ export default function POS() {
       setDeferredDone(true)
       setShowDeferredModal(true)
 
-      // Deduct stock
-      if (branchWarehouseId) {
-        for (const line of items) {
-          if (!line.product_id) continue
-          const { data: currentStock } = await supabase
-            .from('stock_locations')
-            .select('id, quantity')
-            .eq('warehouse_id', branchWarehouseId)
-            .eq('product_id', line.product_id)
-            .maybeSingle()
-          if (!currentStock?.id) continue
-          const nextQty = Math.max(0, Number(currentStock.quantity || 0) - Number(line.quantity || 0))
-          await supabase.from('stock_locations').update({ quantity: nextQty }).eq('id', currentStock.id)
-          setBranchStock((prev) => ({ ...prev, [line.product_id!]: nextQty }))
-        }
-      }
+      // Stock deduction is handled exclusively by syncPendingOrders() when order syncs to Supabase.
 
       await updateShiftTotals(activeShift.id, order.total)
       if (isOnline) syncPendingOrders()
@@ -759,7 +728,7 @@ ${showPayMethod ? `<div class="row"><span>طريقة الدفع</span><span>${pa
                       </div>
                       <span className="text-xs font-bold w-16 text-left flex-shrink-0" dir="ltr" style={{ color: 'var(--text-heading)' }}>{formatEGP(itemTotal)}</span>
                     </div>
-                    <button onClick={() => cart.removeItem(item.product_id, aoKey)} className="absolute top-1 left-1 p-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--danger)' }}><Trash2 className="w-3 h-3" /></button>
+                    <button onClick={() => cart.removeItem(item.product_id, aoKey)} className="absolute top-1 left-1 p-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity touch-visible" style={{ color: 'var(--danger)' }}><Trash2 className="w-3 h-3" /></button>
                   </div>
                 )
               })}</div>
@@ -786,7 +755,7 @@ ${showPayMethod ? `<div class="row"><span>طريقة الدفع</span><span>${pa
                     setShowSplitPay(false)
                   }} className="flex items-center justify-center gap-1 py-2 rounded-xl text-[11px] font-bold border-2 transition-all" style={{
                     borderColor: isActive ? 'var(--primary)' : 'var(--border)',
-                    background: isActive ? 'rgba(37,99,235,0.08)' : 'transparent',
+                    background: isActive ? 'color-mix(in srgb, var(--primary) 8%, transparent)' : 'transparent',
                     color: 'var(--text-main)',
                   }}>
                     <Icon className="w-3.5 h-3.5" />{labels[method]}
@@ -854,36 +823,21 @@ ${showPayMethod ? `<div class="row"><span>طريقة الدفع</span><span>${pa
 
           <div className="flex-1 overflow-y-auto p-3">
             {products.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full opacity-40">
-                <Package className="w-16 h-16 mb-3" style={{ color: 'var(--text-muted)' }} />
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>جاري تحميل المنتجات...</p>
-                <button onClick={() => fullSync()} className="mt-3 px-4 py-2 rounded-lg text-xs font-bold" style={{ background: 'var(--primary)', color: 'var(--text-on-primary)' }}>تحديث</button>
-              </div>
+              <SkeletonGrid count={12} className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" />
             ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full opacity-40">
                 <Package className="w-16 h-16 mb-3" style={{ color: 'var(--text-muted)' }} />
                 <p className="text-sm" style={{ color: 'var(--text-muted)' }}>لا توجد منتجات</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 lg:gap-3">{filtered.map(product => {
-                const branchQty = Number(branchStock[product.id] ?? 0)
-                const outOfStock = !!product.track_stock && branchQty <= 0
-                const lowStock = !!product.track_stock && !outOfStock && product.low_stock_threshold && branchQty <= product.low_stock_threshold
-                return (
-                  <button key={product.id} onClick={() => addItem(product)} className="relative flex flex-col items-center p-3 lg:p-4 rounded-2xl border transition-all active:scale-95 hover:border-[var(--primary)]/30" style={{ background: 'var(--bg-card)', borderColor: 'var(--border-light)', opacity: outOfStock ? 0.5 : 1, cursor: outOfStock ? 'not-allowed' : 'pointer' }}>
-                    {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="w-10 h-10 lg:w-12 lg:h-12 rounded-lg object-cover mb-1.5" /> : <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-lg flex items-center justify-center mb-1.5" style={{ background: 'var(--bg-input)' }}><ImageIcon className="w-5 h-5 lg:w-6 lg:h-6" style={{ color: 'var(--text-muted)' }} /></div>}
-                    <p className="text-[11px] lg:text-xs font-bold text-center leading-tight" style={{ color: 'var(--text-heading)' }}>{product.name}</p>
-                    <p className="text-[11px] lg:text-xs font-bold mt-0.5" style={{ color: 'var(--primary)' }}>{formatEGP(product.selling_price)}</p>
-                    <p className="text-[9px] lg:text-[10px] mt-0.5" style={{ color: outOfStock ? '#ef4444' : 'var(--text-muted)' }}>المخزون: {branchQty}</p>
-                    {outOfStock && (
-                      <span className="absolute top-1 left-1 text-[8px] px-1 py-0.5 rounded font-bold" style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>نفذ</span>
-                    )}
-                    {lowStock && (
-                      <span className="absolute top-1 left-1 text-[8px] px-1 py-0.5 rounded font-bold" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>مخزون منخفض</span>
-                    )}
-                  </button>
-                )
-              })}</div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 lg:gap-3">{filtered.map(product => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  branchQty={Number(branchStock[product.id] ?? 0)}
+                  onClick={addItem}
+                />
+              ))}</div>
             )}
           </div>
         </div>

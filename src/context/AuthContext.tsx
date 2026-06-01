@@ -1,8 +1,6 @@
 import { useState, useEffect, createContext, useContext, useCallback } from 'react'
-import { supabase as typedSupabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
 import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js'
-
-const supabase = typedSupabase as any
 
 export interface AppUserRole {
   id: string
@@ -147,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const { data: savedUser, error: saveError } = existingUser
         ? await supabase.from('users').update(payload).eq('id', existingUser.id).select('*, user_roles(role:roles(id, name))').single()
-        : await supabase.from('users').insert({ ...payload, role_name: payload.role_name || 'كاشير' } as any).select('*, user_roles(role:roles(id, name))').single()
+        : await supabase.from('users').insert({ ...payload, role_name: payload.role_name || 'كاشير' }).select('*, user_roles(role:roles(id, name))').single()
 
       if (saveError || !savedUser) {
         console.warn('[auth] failed to sync app user:', saveError)
@@ -171,7 +169,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .maybeSingle()
 
           if (!existingLink) {
-            await supabase.from('user_roles').insert({ user_id: savedUser.id, role_id: adminRole.id } as any)
+            await supabase.from('user_roles').insert({ user_id: savedUser.id, role_id: adminRole.id })
           }
         }
       }

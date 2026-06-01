@@ -156,9 +156,9 @@ export default function Layout() {
                         !active && 'hover:translate-x-[-2px]'
                       )}
                       style={{
-                        background: active ? 'rgba(16,185,129,0.12)' : 'transparent',
+                        background: active ? 'color-mix(in srgb, var(--primary) 12%, transparent)' : 'transparent',
                         color: active ? 'var(--primary)' : 'var(--text-on-sidebar)',
-                        boxShadow: active ? '0 0 12px rgba(16,185,129,0.1)' : 'none',
+                        boxShadow: active ? '0 0 12px color-mix(in srgb, var(--primary) 10%, transparent)' : 'none',
                       }}
                       onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' } }}
                       onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = 'transparent' } }}
@@ -222,10 +222,29 @@ export default function Layout() {
         </header>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-6 pb-20 lg:pb-6">
           <Outlet />
         </div>
       </main>
+
+      {/* Mobile bottom nav */}
+      <nav className="fixed bottom-0 inset-x-0 z-40 lg:hidden border-t flex justify-around items-center h-16 px-2" style={{ background: 'var(--bg-card)', borderColor: 'var(--border-light)' }}>
+        {navSections.flatMap(s => s.items).filter(item => ['/', '/pos', '/products', '/orders', '/settings'].includes(item.path)).map(item => {
+          const Icon = item.icon
+          const active = isActive(item.path)
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg transition-colors min-w-0"
+              style={{ color: active ? 'var(--primary)' : 'var(--text-muted)' }}
+            >
+              <Icon className="w-5 h-5" style={{ opacity: active ? 1 : 0.6 }} />
+              <span className="text-[9px] font-bold truncate">{item.label}</span>
+            </Link>
+          )
+        })}
+      </nav>
     </div>
   )
 }

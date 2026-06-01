@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -60,42 +60,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      audit_log: {
-        Row: {
-          action: string
-          amount: number | null
-          created_at: string
-          details: Json | null
-          entity_id: string | null
-          entity_type: string
-          id: string
-          user_id: string | null
-          user_name: string | null
-        }
-        Insert: {
-          action: string
-          amount?: number | null
-          created_at?: string
-          details?: Json | null
-          entity_id?: string | null
-          entity_type: string
-          id?: string
-          user_id?: string | null
-          user_name?: string | null
-        }
-        Update: {
-          action?: string
-          amount?: number | null
-          created_at?: string
-          details?: Json | null
-          entity_id?: string | null
-          entity_type?: string
-          id?: string
-          user_id?: string | null
-          user_name?: string | null
-        }
-        Relationships: []
       }
       branches: {
         Row: {
@@ -442,53 +406,6 @@ export type Database = {
           },
         ]
       }
-      notifications: {
-        Row: {
-          body: string | null
-          created_at: string | null
-          id: string
-          is_read: boolean
-          link: string | null
-          read_at: string | null
-          tenant_id: string
-          title: string
-          type: string
-          user_id: string | null
-        }
-        Insert: {
-          body?: string | null
-          created_at?: string | null
-          id?: string
-          is_read?: boolean
-          link?: string | null
-          read_at?: string | null
-          tenant_id: string
-          title: string
-          type?: string
-          user_id?: string | null
-        }
-        Update: {
-          body?: string | null
-          created_at?: string | null
-          id?: string
-          is_read?: boolean
-          link?: string | null
-          read_at?: string | null
-          tenant_id?: string
-          title?: string
-          type?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       order_items: {
         Row: {
           id: string
@@ -539,12 +456,16 @@ export type Database = {
           created_at: string | null
           customer_name: string | null
           customer_phone: string | null
+          deferred_due_date: string | null
           discount_amount: number
           id: string
           notes: string | null
           order_ref: string
+          payment_link: string | null
           payment_method: string | null
+          payment_ref: string | null
           payment_status: string
+          paymob_order_id: string | null
           return_status: string | null
           shift_id: string | null
           split_payments: Json | null
@@ -564,12 +485,16 @@ export type Database = {
           created_at?: string | null
           customer_name?: string | null
           customer_phone?: string | null
+          deferred_due_date?: string | null
           discount_amount?: number
           id?: string
           notes?: string | null
           order_ref: string
+          payment_link?: string | null
           payment_method?: string | null
+          payment_ref?: string | null
           payment_status?: string
+          paymob_order_id?: string | null
           return_status?: string | null
           shift_id?: string | null
           split_payments?: Json | null
@@ -589,12 +514,16 @@ export type Database = {
           created_at?: string | null
           customer_name?: string | null
           customer_phone?: string | null
+          deferred_due_date?: string | null
           discount_amount?: number
           id?: string
           notes?: string | null
           order_ref?: string
+          payment_link?: string | null
           payment_method?: string | null
+          payment_ref?: string | null
           payment_status?: string
+          paymob_order_id?: string | null
           return_status?: string | null
           shift_id?: string | null
           split_payments?: Json | null
@@ -637,14 +566,17 @@ export type Database = {
           einvoice_enabled: boolean | null
           einvoice_env: string | null
           einvoice_reg_number: string | null
+          electronic_payment_config: Json | null
           email: string | null
           fiscal_year_start: string
           id: string
+          invoice_settings: Json | null
           last_order_cutoff_minutes: number | null
           logo_storage_path: string | null
           logo_url: string | null
           name: string
           opening_time: string | null
+          paymob_config: Json | null
           phone: string | null
           print_invoices_enabled: boolean
           printer_name: string | null
@@ -666,14 +598,17 @@ export type Database = {
           einvoice_enabled?: boolean | null
           einvoice_env?: string | null
           einvoice_reg_number?: string | null
+          electronic_payment_config?: Json | null
           email?: string | null
           fiscal_year_start?: string
           id?: string
+          invoice_settings?: Json | null
           last_order_cutoff_minutes?: number | null
           logo_storage_path?: string | null
           logo_url?: string | null
           name?: string
           opening_time?: string | null
+          paymob_config?: Json | null
           phone?: string | null
           print_invoices_enabled?: boolean
           printer_name?: string | null
@@ -695,14 +630,17 @@ export type Database = {
           einvoice_enabled?: boolean | null
           einvoice_env?: string | null
           einvoice_reg_number?: string | null
+          electronic_payment_config?: Json | null
           email?: string | null
           fiscal_year_start?: string
           id?: string
+          invoice_settings?: Json | null
           last_order_cutoff_minutes?: number | null
           logo_storage_path?: string | null
           logo_url?: string | null
           name?: string
           opening_time?: string | null
+          paymob_config?: Json | null
           phone?: string | null
           print_invoices_enabled?: boolean
           printer_name?: string | null
@@ -725,181 +663,69 @@ export type Database = {
         Row: {
           amount_cents: number
           created_at: string | null
-          currency: string
+          currency: string | null
           customer_phone: string | null
           id: string
           offline_order_id: string | null
+          order_id: string | null
           paid_at: string | null
           payload: Json | null
           payment_link: string | null
           paymob_order_id: string | null
           paymob_transaction_id: string | null
-          refund_amount_cents: number | null
-          refund_reference: string | null
-          refunded_at: string | null
           sending_method: string | null
           shorten_url: string | null
-          status: string
+          status: string | null
           tenant_id: string | null
           webhook_payload: Json | null
         }
         Insert: {
           amount_cents: number
           created_at?: string | null
-          currency: string
+          currency?: string | null
           customer_phone?: string | null
           id?: string
           offline_order_id?: string | null
+          order_id?: string | null
           paid_at?: string | null
           payload?: Json | null
           payment_link?: string | null
           paymob_order_id?: string | null
           paymob_transaction_id?: string | null
-          refund_amount_cents?: number | null
-          refund_reference?: string | null
-          refunded_at?: string | null
           sending_method?: string | null
           shorten_url?: string | null
-          status?: string
+          status?: string | null
           tenant_id?: string | null
           webhook_payload?: Json | null
         }
         Update: {
           amount_cents?: number
           created_at?: string | null
-          currency?: string
+          currency?: string | null
           customer_phone?: string | null
           id?: string
           offline_order_id?: string | null
+          order_id?: string | null
           paid_at?: string | null
           payload?: Json | null
           payment_link?: string | null
           paymob_order_id?: string | null
           paymob_transaction_id?: string | null
-          refund_amount_cents?: number | null
-          refund_reference?: string | null
-          refunded_at?: string | null
           sending_method?: string | null
           shorten_url?: string | null
-          status?: string
+          status?: string | null
           tenant_id?: string | null
           webhook_payload?: Json | null
         }
-        Relationships: []
-      }
-      product_addons: {
-        Row: {
-          created_at: string | null
-          extra_price: number
-          id: string
-          is_active: boolean
-          name: string
-          product_id: string
-          sort_order: number
-          tenant_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          extra_price?: number
-          id?: string
-          is_active?: boolean
-          name: string
-          product_id: string
-          sort_order?: number
-          tenant_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          extra_price?: number
-          id?: string
-          is_active?: boolean
-          name?: string
-          product_id?: string
-          sort_order?: number
-          tenant_id?: string | null
-        }
         Relationships: [
           {
-            foreignKeyName: "product_addons_product_id_fkey"
-            columns: ["product_id"]
+            foreignKeyName: "paymob_transactions_order_id_fkey"
+            columns: ["order_id"]
             isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_addons_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
-      }
-      product_bundles: {
-        Row: {
-          bundle_id: string
-          created_at: string
-          id: string
-          item_id: string
-          quantity: number
-        }
-        Insert: {
-          bundle_id: string
-          created_at?: string
-          id?: string
-          item_id: string
-          quantity?: number
-        }
-        Update: {
-          bundle_id?: string
-          created_at?: string
-          id?: string
-          item_id?: string
-          quantity?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_bundles_bundle_id_fkey"
-            columns: ["bundle_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_bundles_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      product_images: {
-        Row: {
-          created_at: string | null
-          id: string
-          image_url: string
-          is_primary: boolean
-          product_id: string
-          sort_order: number
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          image_url: string
-          is_primary?: boolean
-          product_id: string
-          sort_order?: number
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          image_url?: string
-          is_primary?: boolean
-          product_id?: string
-          sort_order?: number
-        }
-        Relationships: []
       }
       products: {
         Row: {
@@ -908,7 +734,6 @@ export type Database = {
           cashier_description: string | null
           category: string
           category_id: string | null
-          cost_price: number
           created_at: string
           deleted_at: string | null
           description: string | null
@@ -933,7 +758,6 @@ export type Database = {
           cashier_description?: string | null
           category?: string
           category_id?: string | null
-          cost_price?: number
           created_at?: string
           deleted_at?: string | null
           description?: string | null
@@ -958,7 +782,6 @@ export type Database = {
           cashier_description?: string | null
           category?: string
           category_id?: string | null
-          cost_price?: number
           created_at?: string
           deleted_at?: string | null
           description?: string | null
@@ -1090,6 +913,7 @@ export type Database = {
       }
       purchase_orders: {
         Row: {
+          branch_id: string | null
           created_at: string | null
           created_by: string | null
           expected_date: string | null
@@ -1104,8 +928,10 @@ export type Database = {
           tenant_id: string
           total: number
           updated_at: string | null
+          warehouse_id: string | null
         }
         Insert: {
+          branch_id?: string | null
           created_at?: string | null
           created_by?: string | null
           expected_date?: string | null
@@ -1120,8 +946,10 @@ export type Database = {
           tenant_id: string
           total?: number
           updated_at?: string | null
+          warehouse_id?: string | null
         }
         Update: {
+          branch_id?: string | null
           created_at?: string | null
           created_by?: string | null
           expected_date?: string | null
@@ -1136,8 +964,16 @@ export type Database = {
           tenant_id?: string
           total?: number
           updated_at?: string | null
+          warehouse_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "purchase_orders_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "purchase_orders_supplier_id_fkey"
             columns: ["supplier_id"]
@@ -1150,6 +986,13 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
             referencedColumns: ["id"]
           },
         ]
@@ -1316,6 +1159,7 @@ export type Database = {
       }
       returns: {
         Row: {
+          branch_id: string | null
           created_at: string | null
           id: string
           notes: string | null
@@ -1329,6 +1173,7 @@ export type Database = {
           tenant_id: string
         }
         Insert: {
+          branch_id?: string | null
           created_at?: string | null
           id?: string
           notes?: string | null
@@ -1342,6 +1187,7 @@ export type Database = {
           tenant_id: string
         }
         Update: {
+          branch_id?: string | null
           created_at?: string | null
           id?: string
           notes?: string | null
@@ -1355,6 +1201,13 @@ export type Database = {
           tenant_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "returns_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "returns_order_id_fkey"
             columns: ["order_id"]
@@ -1577,6 +1430,7 @@ export type Database = {
           status: string
           tenant_id: string
           to_warehouse_id: string
+          transfer_ref: string | null
         }
         Insert: {
           completed_at?: string | null
@@ -1590,6 +1444,7 @@ export type Database = {
           status?: string
           tenant_id: string
           to_warehouse_id: string
+          transfer_ref?: string | null
         }
         Update: {
           completed_at?: string | null
@@ -1603,6 +1458,7 @@ export type Database = {
           status?: string
           tenant_id?: string
           to_warehouse_id?: string
+          transfer_ref?: string | null
         }
         Relationships: [
           {
@@ -1725,6 +1581,65 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "suppliers_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sync_staging: {
+        Row: {
+          action_type: string
+          created_at: string
+          created_by: string | null
+          created_by_name: string | null
+          id: string
+          offline_created_at: string
+          offline_id: string
+          payload: Json
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          synced_at: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          action_type?: string
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          offline_created_at?: string
+          offline_id: string
+          payload: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          synced_at?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          offline_created_at?: string
+          offline_id?: string
+          payload?: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          synced_at?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_staging_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1879,83 +1794,6 @@ export type Database = {
           },
         ]
       }
-      wallet: {
-        Row: {
-          current_balance: number
-          id: string
-          minimum_balance_alert: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          current_balance?: number
-          id?: string
-          minimum_balance_alert?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          current_balance?: number
-          id?: string
-          minimum_balance_alert?: number | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      wallet_transactions: {
-        Row: {
-          amount: number
-          balance_after: number
-          balance_before: number
-          created_at: string | null
-          description: string | null
-          direction: string
-          id: string
-          is_voided: boolean
-          reference_id: string | null
-          transaction_date: string | null
-          type: string
-          void_reason: string | null
-          wallet_id: string | null
-        }
-        Insert: {
-          amount: number
-          balance_after: number
-          balance_before: number
-          created_at?: string | null
-          description?: string | null
-          direction: string
-          id?: string
-          is_voided?: boolean
-          reference_id?: string | null
-          transaction_date?: string | null
-          type: string
-          void_reason?: string | null
-          wallet_id?: string | null
-        }
-        Update: {
-          amount?: number
-          balance_after?: number
-          balance_before?: number
-          created_at?: string | null
-          description?: string | null
-          direction?: string
-          id?: string
-          is_voided?: boolean
-          reference_id?: string | null
-          transaction_date?: string | null
-          type?: string
-          void_reason?: string | null
-          wallet_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "wallet_transactions_wallet_id_fkey"
-            columns: ["wallet_id"]
-            isOneToOne: false
-            referencedRelation: "wallet"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       warehouses: {
         Row: {
           address: string | null
@@ -1965,6 +1803,7 @@ export type Database = {
           is_active: boolean
           name: string
           tenant_id: string
+          type: string
         }
         Insert: {
           address?: string | null
@@ -1974,6 +1813,7 @@ export type Database = {
           is_active?: boolean
           name: string
           tenant_id: string
+          type?: string
         }
         Update: {
           address?: string | null
@@ -1983,6 +1823,7 @@ export type Database = {
           is_active?: boolean
           name?: string
           tenant_id?: string
+          type?: string
         }
         Relationships: [
           {
@@ -2006,6 +1847,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      deduct_warehouse_stock: {
+        Args: { p_items: Json; p_warehouse_id: string }
+        Returns: Json
+      }
       update_wallet_balance: {
         Args: {
           p_amount: number
@@ -2017,6 +1862,16 @@ export type Database = {
         Returns: string
       }
       uuid_generate_v4: { Args: never; Returns: string }
+      wallet_transact: {
+        Args: {
+          p_amount: number
+          p_description: string
+          p_direction: string
+          p_reference_id?: string
+          p_type: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
@@ -2149,4 +2004,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

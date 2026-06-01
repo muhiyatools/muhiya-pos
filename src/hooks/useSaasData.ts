@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase as typedSupabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
 
-const supabase = typedSupabase as any
 const db = supabase
 
 /* ═══ Branches ═══ */
@@ -65,7 +64,7 @@ export function useStockTransfers(tenantId?: string | null) {
   const [loading, setLoading] = useState(true)
   const fetch = useCallback(async () => {
     setLoading(true)
-    let q = (supabase as any).from('stock_transfers').select('*').order('created_at', { ascending: false }).limit(200)
+    let q = supabase.from('stock_transfers').select('*').order('created_at', { ascending: false }).limit(200)
     if (tenantId) q = q.eq('tenant_id', tenantId)
     const { data } = await q
     if (data) setTransfers(data)
@@ -491,7 +490,7 @@ export function useSyncStaging(tenantId?: string | null) {
 
   const fetch = useCallback(async () => {
     setLoading(true)
-    let q = (supabase as any).from('sync_staging').select('*').order('created_at', { ascending: false })
+    let q = supabase.from('sync_staging').select('*').order('created_at', { ascending: false })
     if (tenantId) q = q.eq('tenant_id', tenantId)
     const { data } = await q
     if (data) setEntries(data)

@@ -210,7 +210,7 @@ export async function syncPendingOrders(): Promise<number> {
 export async function approveStaged(stagingId: string, reviewerId: string): Promise<boolean> {
   try {
     // Get the staging entry
-    const { data: entry, error } = await (supabase as any)
+    const { data: entry, error } = await supabase
       .from('sync_staging')
       .select('*')
       .eq('id', stagingId)
@@ -289,7 +289,7 @@ export async function approveStaged(stagingId: string, reviewerId: string): Prom
     }
 
     // Mark staging entry as approved
-    await (supabase as any).from('sync_staging').update({
+    await supabase.from('sync_staging').update({
       status: 'approved',
       reviewed_by: reviewerId,
       reviewed_at: new Date().toISOString(),
@@ -305,7 +305,7 @@ export async function approveStaged(stagingId: string, reviewerId: string): Prom
 
 /** Reject a staged action */
 export async function rejectStaged(stagingId: string, reviewerId: string, notes?: string): Promise<boolean> {
-  const { error } = await (supabase as any).from('sync_staging').update({
+  const { error } = await supabase.from('sync_staging').update({
     status: 'rejected',
     reviewed_by: reviewerId,
     reviewed_at: new Date().toISOString(),

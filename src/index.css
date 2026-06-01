@@ -251,3 +251,15 @@
   .text-2xl { font-size: 1.25rem; }
   .text-xl { font-size: 1.1rem; }
 }
+
+/* === Touch devices: always show hover-only elements === */
+@media (hover: none) {
+  .group:hover .touch-visible {
+    opacity: 1 !important;
+  }
+  /* Make cart item delete buttons always visible on touch */
+  .touch-visible {
+    opacity: 0.6 !important;
+    transition: none !important;
+  }
+}
